@@ -87,6 +87,7 @@ GRID64=250
 #
 HOTTESTDISKTEMP=15
 LSTDEVICES=""
+# Please consider this verification can be exhausting for some disks, you should select a few (see lsblk command)
 for DSKDEV in /dev/sda /dev/sdb /dev/sdc /dev/sdd /dev/sde /dev/sdf
 do
         TSTTEMP=`/volume0/usr/builtin/sbin/smartctl -a -d sat $DSKDEV|awk '/^194/ { print $10 } '`
@@ -159,7 +160,7 @@ do
                 sleep $DELAY
                 DELAY=9
         else
-                sleep 0.5
+                sleep 0.1
                 CPT=`expr $CPT + 1`
         fi
 done
