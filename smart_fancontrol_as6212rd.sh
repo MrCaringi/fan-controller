@@ -31,30 +31,33 @@ CYCLETEMPCHECK=18 # every how many 10" cycles we check for temp changes. 6 = eve
 ##      Configuration file, in order to make changes more easily 
 #       temperature to power grid : GRIDxx=yy : we want power of yy if temp is xx
 
-. /home/jfc/scripts/smart-fan.conf
+. /volume1/home/jfc/scripts/smart-fan.conf
 
 #
 # let's learn devices which have temperature sensors
 #
 HOTTESTDISKTEMP=15
 LSTDEVICES=""
-for DSKDEV in /dev/sda /dev/sdb /dev/sdc /dev/sdd /dev/sde /dev/sdf /dev/sdg
+for DSKDEV in /dev/sda /dev/sdb /dev/sdc /dev/sdd /dev/sde /dev/sdf
 do
-        df | grep $DSKDEV | grep USB >/dev/null 2>&1
-        if [ $? -ne 0 ]
-                then
-                TSTTEMP=`/volume0/usr/builtin/sbin/smartctl a -d sat $DSKDEV|awk '/^194/ { print $10 } '`
+        TSTTEMP=`/volume0/usr/builtin/sbin/smartctl -a -d sat $DSKDEV|awk '/^194/ { print $10 } '`
+        [ $VERBOSE ] && echo $DSKDEV added to list with recognized temp of $TSTTEMP
+        LSTDEVICES="$LSTDEVICES $DSKDEV"
+#        df | grep $DSKDEV | grep USB >/dev/null 2>&1
+#        if [ $? -ne 0 ]
+#                then
+                TSTTEMP=`/volume0/usr/builtin/sbin/smartctl -a -d sat $DSKDEV|awk '/^194/ { print $10 } '`
                 #       Find out where you "smartctl" bin is located with "sudo find / -iname smartctl"
                 # /volume0/usr/builtin/sbin/smartctl -a -d sat /dev/sda
-                if [ "$TSTTEMP" != "" ]
-                then
-                        if [ \( "$TSTTEMP" -gt 15 \) -a \( "$TSTTEMP" -lt 70 \) ]
-                        then
-                                [ $VERBOSE ] && echo $DSKDEV added to list with recognized temp of $TSTTEMP
-                                LSTDEVICES="$LSTDEVICES $DSKDEV"
-                        fi
-                fi
-        fi
+                #if [ "$TSTTEMP" != "" ]
+                #then
+                        #if [ \( "$TSTTEMP" -gt 15 \) -a \( "$TSTTEMP" -lt 70 \) ]
+                        #then
+                                #[ $VERBOSE ] && echo $DSKDEV added to list with recognized temp of $TSTTEMP
+                                #LSTDEVICES="$LSTDEVICES $DSKDEV"
+                        #fi
+                #fi
+#        fi
 done
 [ $VERBOSE ] && echo Retained devices for temperature check : $LSTDEVICES
 
@@ -77,7 +80,7 @@ do
                 NEW_HOTTESTDISKTEMP=15
                 for DSKDEV in $LSTDEVICES
                 do
-                        TSTTEMP=`/volume0/usr/builtin/sbin/smartctl a -d sat $DSKDEV|awk '/^194/ { print $10 } '`
+                        TSTTEMP=`/volume0/usr/builtin/sbin/smartctl -a -d sat $DSKDEV|awk '/^194/ { print $10 } '`
                         if [ "$TSTTEMP" -gt $NEW_HOTTESTDISKTEMP ]
                         then
                                 NEW_HOTTESTDISKTEMP=$TSTTEMP
