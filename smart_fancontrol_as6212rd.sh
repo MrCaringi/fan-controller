@@ -13,7 +13,7 @@
 #
 #	MODIFICATION LOG
 #		2020-05-04  First version
-#		2020-05-  Uploaded a GitHub version
+#		2020-05-06  Uploaded a GitHub version
 #
 #
 ###############################
@@ -31,7 +31,56 @@ CYCLETEMPCHECK=18 # every how many 10" cycles we check for temp changes. 6 = eve
 ##      Configuration file, in order to make changes more easily 
 #       temperature to power grid : GRIDxx=yy : we want power of yy if temp is xx
 
-. /volume1/home/jfc/scripts/smart-fan.conf
+GRID15=30
+GRID16=30
+GRID17=30
+GRID18=31
+GRID19=33
+GRID20=35
+GRID21=37
+GRID22=39
+GRID23=41
+GRID24=44
+GRID25=47
+GRID26=50
+GRID27=54
+GRID28=59
+GRID29=65
+GRID30=68
+GRID31=70
+GRID32=72
+GRID33=74
+GRID34=75
+GRID35=77
+GRID36=79
+GRID37=82
+GRID38=84
+GRID39=85
+GRID40=90
+GRID41=95
+GRID42=96
+GRID43=97
+GRID44=98
+GRID45=110
+GRID46=115
+GRID47=120
+GRID48=125
+GRID49=130
+GRID50=135
+GRID51=140
+GRID52=145
+GRID53=150
+GRID54=160
+GRID55=170
+GRID56=180
+GRID57=190
+GRID58=210
+GRID59=230
+GRID60=250
+GRID61=250
+GRID62=250
+GRID63=250
+GRID64=250
 
 #
 # let's learn devices which have temperature sensors
@@ -43,26 +92,11 @@ do
         TSTTEMP=`/volume0/usr/builtin/sbin/smartctl -a -d sat $DSKDEV|awk '/^194/ { print $10 } '`
         [ $VERBOSE ] && echo $DSKDEV added to list with recognized temp of $TSTTEMP
         LSTDEVICES="$LSTDEVICES $DSKDEV"
-#        df | grep $DSKDEV | grep USB >/dev/null 2>&1
-#        if [ $? -ne 0 ]
-#                then
-                TSTTEMP=`/volume0/usr/builtin/sbin/smartctl -a -d sat $DSKDEV|awk '/^194/ { print $10 } '`
-                #       Find out where you "smartctl" bin is located with "sudo find / -iname smartctl"
-                # /volume0/usr/builtin/sbin/smartctl -a -d sat /dev/sda
-                #if [ "$TSTTEMP" != "" ]
-                #then
-                        #if [ \( "$TSTTEMP" -gt 15 \) -a \( "$TSTTEMP" -lt 70 \) ]
-                        #then
-                                #[ $VERBOSE ] && echo $DSKDEV added to list with recognized temp of $TSTTEMP
-                                #LSTDEVICES="$LSTDEVICES $DSKDEV"
-                        #fi
-                #fi
-#        fi
 done
 [ $VERBOSE ] && echo Retained devices for temperature check : $LSTDEVICES
 
 # DESIREDPOWER=$DEF_DESIREDPOWER # from about 30 to 255
-DESIREDPOWER=`fanctrl -getfanspeed|awk ' { print $NF } '`
+DESIREDPOWER=`fanctrl -getfanspeed|awk ' { if(NR>1)print $NF } '`
 COUNTDWN=0
 CPT=0
 DELAY=1 # initial loop = no delay
@@ -95,8 +129,9 @@ do
                 then
                         if [ $DESIREDPOWER != $NEW_DESIREDPOWER ]
                         then
-                                [ $VERBOSE ] && echo `date +%Y%m%d_%T` hottest disk changed from $HOTTESTDISKTEMP to $NEW_HOTTESTDISKTEMP,raising fanpower from $DESIREDPOWER to $NEW_DESIREDPOWER
+                                [ $VERBOSE ] && echo `date +%Y%m%d_%T` hottest disk changed from $HOTTESTDISKTEMP to $NEW_HOTTESTDISKTEMP, changing fanpower from $DESIREDPOWER to $NEW_DESIREDPOWER
                                 DESIREDPOWER=$NEW_DESIREDPOWER
+                                
                         else
                                 [ $VERBOSE ] && echo `date +%Y%m%d_%T` hottest disk changed from $HOTTESTDISKTEMP to $NEW_HOTTESTDISKTEMP,fanpower leaved unchanged at $DESIREDPOWER
                         fi
@@ -109,11 +144,14 @@ do
 #
 # fan override loop
 #
-        CURRPOWER=`fanctrl -getfanspeed|awk ' { print $NF } ' `
+
+        CURRPOWER=`fanctrl -getfanspeed|awk ' { if(NR>1)print $NF } '`
         if [ $DESIREDPOWER -ne $CURRPOWER ]
         then
                 fanctrl -setfanpwm 0 $DESIREDPOWER
                 fanctrl -setfanpwm 1 $DESIREDPOWER
+                sleep 1
+                echo `fanctrl -getfanspeed`
                 ## echo $CURRPOWER to $DESIREDPOWER CPT : $CPT
                 CPT=0
                 COUNTDWN=`expr $COUNTDWN - 1`
