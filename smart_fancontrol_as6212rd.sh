@@ -92,6 +92,7 @@ do
         TSTTEMP=`/volume0/usr/builtin/sbin/smartctl -a -d sat $DSKDEV|awk '/^194/ { print $10 } '`
         [ $VERBOSE ] && echo $DSKDEV added to list with recognized temp of $TSTTEMP
         LSTDEVICES="$LSTDEVICES $DSKDEV"
+
 done
 [ $VERBOSE ] && echo Retained devices for temperature check : $LSTDEVICES
 
@@ -126,6 +127,7 @@ do
                         NEW_DESIREDPOWER=$DEF_DESIREDPOWER
                 fi
                 if [ $HOTTESTDISKTEMP != $NEW_HOTTESTDISKTEMP ]
+                echo `date +%Y%m%d_%T` Current Fan Speed `fanctrl -getfanspeed`
                 then
                         if [ $DESIREDPOWER != $NEW_DESIREDPOWER ]
                         then
@@ -136,6 +138,7 @@ do
                                 [ $VERBOSE ] && echo `date +%Y%m%d_%T` hottest disk changed from $HOTTESTDISKTEMP to $NEW_HOTTESTDISKTEMP,fanpower leaved unchanged at $DESIREDPOWER
                         fi
                         HOTTESTDISKTEMP=$NEW_HOTTESTDISKTEMP
+                        
                 ## else
                         ## [ $VERBOSE ] && echo `date +%Y%m%d_%T` hottest disk leaved unchanged at $HOTTESTDISKTEMP ,fanpower leaved unchanged at $DESIREDPOWER
                 fi
@@ -150,15 +153,13 @@ do
         then
                 fanctrl -setfanpwm 0 $DESIREDPOWER
                 fanctrl -setfanpwm 1 $DESIREDPOWER
-                sleep 1
-                echo `fanctrl -getfanspeed`
                 ## echo $CURRPOWER to $DESIREDPOWER CPT : $CPT
                 CPT=0
                 COUNTDWN=`expr $COUNTDWN - 1`
                 sleep $DELAY
                 DELAY=9
         else
-                sleep 0.1
+                sleep 0.5
                 CPT=`expr $CPT + 1`
         fi
 done
