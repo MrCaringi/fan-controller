@@ -70,9 +70,10 @@
             ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $INITIAL_hex >/dev/null 2>&1
         
     fi
-    CPU_T_old=$CPU_T_new
-    SPEED_hex_old=$(printf "0x%X\n" $INITIAL_hex)
-    SPEED_hex_new=$(printf "0x%X\n" $INITIAL_hex)
+    #   Preparing data for first loop
+        CPU_T_old=$CPU_T_new
+        SPEED_hex_old=$(printf "0x%X\n" $INITIAL_hex)
+        SPEED_hex_new=$(printf "0x%X\n" $INITIAL_hex)
 
 # -------------------------------------------------------------------------------
 # The Magic Starts Here
@@ -110,7 +111,7 @@
                         echo $(date +%Y%m%d-%H%M%S)" INFO: Old Temp ( "$CPU_T_old" ), is lower than New Temp ( "$CPU_T_new" ); Temp is increasing, Speed ( "$SPEED_hex_old" ) is kept."
                     else
                         #   CPU is getting cooler, speeding down
-                        SSPEED_hex_new=$(( $SPEED_hex_old - $Steps ))
+                        SPEED_hex_new=$(( $SPEED_hex_old - $Steps ))
                         SPEED_hex_new=$(printf "0x%X\n" $SPEED_hex_new)
                         echo $(date +%Y%m%d-%H%M%S)" WARNING: Temp is getting cooler, speeding down the fan to: "$SPEED_hex_new
                         ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $SPEED_hex_new >/dev/null 2>&1
