@@ -11,6 +11,7 @@
     # 
     ##	MODIFICATION LOG
     #		2020-10-23  First version
+    #       2020-10-24  Improving fan speed logic when temp is below target
     #
     ##  REQUIREMENTS
     #       Packages:
@@ -102,10 +103,17 @@
                     echo $(date +%Y%m%d-%H%M%S)" INFO: New Temp ( "$CPU_T_new" ), is the expected ( "$Target_Temp" ), doing nothing."
                 else
                     ##   Temp is below expected
-                    SPEED_hex_new=$(( $SPEED_hex_old - $Steps ))
-                    SPEED_hex_new=$(printf "0x%X\n" $SPEED_hex_new)
-                    echo $(date +%Y%m%d-%H%M%S)" WARNING: Temp is below expected, speeding down the fan to: "$SPEED_hex_new
-                    ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $SPEED_hex_new
+                    #   Checking if the speed should be decreased
+                    if [ $CPU_T_new -gt $CPU_T_old ]; then
+                        #   CPU getting hotter, do nothing
+                        echo $(date +%Y%m%d-%H%M%S)" INFO: Old Temp ( "$CPU_T_old" ), is lower than New Temp ( "$CPU_T_new" ); Temp is increasing, Speed ( "$SPEED_hex_old" ) is kept."
+                    else
+                        #   CPU is getting cooler, speeding down
+                        SSPEED_hex_new=$(( $SPEED_hex_old - $Steps ))
+                        SPEED_hex_new=$(printf "0x%X\n" $SPEED_hex_new)
+                        echo $(date +%Y%m%d-%H%M%S)" WARNING: Temp is getting cooler, speeding down the fan to: "$SPEED_hex_new
+                        ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $SPEED_hex_new
+                    fi
                 fi
             fi
         #   Updating OLD Values
@@ -117,4 +125,3 @@
     done
     echo $(date +%Y%m%d-%H%M%S)" INFO: Exit"
 exit 0
-
