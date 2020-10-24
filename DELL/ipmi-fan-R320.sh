@@ -43,14 +43,14 @@
 
 ##  Clearing Variables
     echo $(date +%Y%m%d-%H%M%S)" INFO: Clearing Variables"
+    loop=0
     exit=0
     CPU_T_new=0
     CPU_T_old=0
-    SPEED_hex_new=$(printf "0x%X\n" 0x00)
-    SPEED_hex_old=$(printf "0x%X\n" 0x00)
+    SPEED_hex_new=$(printf "0x%X\n" 0x0)
+    SPEED_hex_old=$(printf "0x%X\n" 0x0)
     Steps=$(printf "0x%X\n" $Steps)
     INITIAL_hex=$(printf "0x%X\n" $INITIAL_hex)
-    
 
 # -------------------------------------------------------------------------------
 # First Check
@@ -61,17 +61,18 @@
 
     if [ $CPU_T_new -gt $Max_CPU_Temp ]; then
         echo $(date +%Y%m%d-%H%M%S)" WARNING: CPU Temp is greater than expected ( "$Max_CPU_Temp" ), Turning ON AUTOMATIC IDRAC FAN CONTROL"
-        ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x01 0x01
+        ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x01 0x01 >/dev/null 2>&1
         
         else
             echo $(date +%Y%m%d-%H%M%S)" INFO: CPU Temp is below limit ( "$Max_CPU_Temp" ), Turning OFF AUTOMATIC IDRAC FAN CONTROL"
-            ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x01 0x00
+            ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x01 0x00 >/dev/null 2>&1
             echo $(date +%Y%m%d-%H%M%S)" INFO: Changin to Default Fan Speed ( "$INITIAL_hex ")"
-            ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $INITIAL_hex
+            ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $INITIAL_hex >/dev/null 2>&1
         
     fi
     CPU_T_old=$CPU_T_new
     SPEED_hex_old=$(printf "0x%X\n" $INITIAL_hex)
+    SPEED_hex_new=$(printf "0x%X\n" $INITIAL_hex)
 
 # -------------------------------------------------------------------------------
 # The Magic Starts Here
@@ -94,7 +95,7 @@
                         SPEED_hex_new=$(( $SPEED_hex_old + $Steps ))
                         SPEED_hex_new=$(printf "0x%X\n" $SPEED_hex_new)
                         echo $(date +%Y%m%d-%H%M%S)" WARNING: Temp is not decreasing, speeding up the fan to: "$SPEED_hex_new
-                        ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $SPEED_hex_new
+                        ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $SPEED_hex_new >/dev/null 2>&1
                     fi    
             else
             ##  Verifiying if CPU Temp is equal to expected
@@ -112,14 +113,16 @@
                         SSPEED_hex_new=$(( $SPEED_hex_old - $Steps ))
                         SPEED_hex_new=$(printf "0x%X\n" $SPEED_hex_new)
                         echo $(date +%Y%m%d-%H%M%S)" WARNING: Temp is getting cooler, speeding down the fan to: "$SPEED_hex_new
-                        ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $SPEED_hex_new
+                        ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $SPEED_hex_new >/dev/null 2>&1
                     fi
                 fi
             fi
         #   Updating OLD Values
             CPU_T_old=$CPU_T_new
             SPEED_hex_old=$(printf "0x%X\n" $SPEED_hex_new)
-        echo "-------------------- loop --------------------"
+            loop=$(( $loop + 1 ))
+        
+        echo "-------------------- loop #"$loop"--------------------"
         sleep $Interval
         #exit=1
     done
