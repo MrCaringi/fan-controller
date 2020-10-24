@@ -113,7 +113,7 @@
                         #   CPU is getting cooler, speeding down
                         SPEED_hex_new=$(( $SPEED_hex_old - $Steps ))
                         SPEED_hex_new=$(printf "0x%X\n" $SPEED_hex_new)
-                        echo $(date +%Y%m%d-%H%M%S)" WARNING: Temp is getting cooler, speeding down the fan to: "$SPEED_hex_new
+                        echo $(date +%Y%m%d-%H%M%S)" WARNING: Temp is getting cooler ( "$CPU_T_new" ), speeding down the fan to: "$SPEED_hex_new
                         ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI raw 0x30 0x30 0x02 0xff $SPEED_hex_new >/dev/null 2>&1
                     fi
                 fi
