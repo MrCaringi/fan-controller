@@ -80,7 +80,7 @@
     while [ $exit -eq 0 ]
     do
         CPU_T_new=$(ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI sdr type temperature |grep -e "0Eh" -e "0Fh" |grep -Po '\d{2}')
-        echo $(date +%Y%m%d-%H%M%S)" INFO: New Temp: "$CPU_T_new
+        #echo $(date +%Y%m%d-%H%M%S)" INFO: New Temp: "$CPU_T_new
         
         ##  Verifiying if CPU Temp is higher than expected
             if [ $CPU_T_new -gt $Target_Temp ]; then
