@@ -99,7 +99,7 @@
                     else
                         #   CPU is not getting cooler, speeding up
                         diff=$(( $CPU_T_new - $Target_Temp ))
-                        echo $diff
+                        #echo $diff
                         if [ $diff -ge $JumpTemp ]; then
                             SPEED_hex_new=$(( $SPEED_hex_old + $Jump ))
                             SPEED_hex_new=$(printf "0x%X\n" $SPEED_hex_new)
@@ -127,7 +127,7 @@
                     else
                         #   CPU is getting cooler, speeding down
                         diff=$(( $Target_Temp - $CPU_T_new ))
-                        echo $diff
+                        #echo $diff
                         if [ $diff -ge $JumpTemp ]; then
                             SPEED_hex_new=$(( $SPEED_hex_old - $Jump ))
                             SPEED_hex_new=$(printf "0x%X\n" $SPEED_hex_new)
