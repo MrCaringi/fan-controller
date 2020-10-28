@@ -25,8 +25,11 @@ thanks to @diferentec for the original script used as base to this one.
 
 ### .JSON config file explanation
 {
+
     "IPMI_config":{
+    
         "Host_IPMI": "1.1.1.1",
+        
         "User_IPMI": "IDRAC-USER",
         "Passw_IPMI": "IDRAC-PASSWORD",
         "EncKey_IPMI": "0000000000000000000000000000000000000000"
