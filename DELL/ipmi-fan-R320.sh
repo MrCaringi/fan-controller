@@ -12,7 +12,8 @@
     ##	MODIFICATION LOG
     #		2020-10-23  First version
     #       2020-10-24  Improving fan speed logic when temp is below target
-    #       2020-10-28  V1.3 Fine tuning when running, Improved fan control with "jumps" speed change
+    #       2020-10-28  V1.3    Fine tuning when running, Improved fan control with "jumps" speed change
+    #       2020-10-29  V1.3.1  Managing odd values when the environment temp is to low
     #
     ##  REQUIREMENTS
     #       Packages:
@@ -56,6 +57,8 @@
     Steps=$(printf "0x%X\n" $Steps)
     Jump=$(printf "0x%X\n" $Jump)
     INITIAL_hex=$(printf "0x%X\n" $INITIAL_hex)
+    MIN_hex=$(printf "0x%X\n" $MIN_hex)
+    MAX_hex=$(printf "0x%X\n" $MAX_hex)
 
 # -------------------------------------------------------------------------------
 # First Check
@@ -87,7 +90,16 @@
     while [ $exit -eq 0 ]
     do
         CPU_T_new=$(ipmitool -I lanplus -H $Host_IPMI -U $User_IPMI -P $Passw_IPMI -y $EncKey_IPMI sdr type temperature |grep -e "0Eh" -e "0Fh" |grep -Po '\d{2}')
-        #echo $(date +%Y%m%d-%H%M%S)" INFO: New Temp: "$CPU_T_new
+        #   Handling odd values; shit happends
+            if [[ $SPEED_hex_old -lt $MIN_hex ]]; then
+                SPEED_hex_old=$(( $MIN_hex + $Jump ))
+                SPEED_hex_old=$(printf "0x%X\n" $SPEED_hex_old)
+                echo $(date +%Y%m%d-%H%M%S)" WARNING: SPEED_hex_old has odd value, setting the minimal Speed + Jump = ( "$SPEED_hex_old" )"              
+            fi
+            if [[ $SPEED_hex_old -gt $MAX_hex ]]; then
+                echo $(date +%Y%m%d-%H%M%S)" WARNING: SPEED_hex_old ( "$SPEED_hex_old" ) has odd value, setting the Initial Speed"
+                SPEED_hex_old=$(printf "0x%X\n" $INITIAL_hex)
+            fi
         
         ##  Verifiying if CPU Temp is higher than expected
             if [ $CPU_T_new -gt $Target_Temp ]; then
@@ -163,11 +175,11 @@
                 Hist=$(cat $1 | jq --raw-output '.Program_config.Hist')
                 echo $(date +%Y%m%d-%H%M%S)" WARNING: Hist value changued to: "$Hist
             fi
-            if [ $Steps != $(cat $1 | jq --raw-output '.Program_config.Steps') ]; then
+            if [[ $Steps -ne $(cat $1 | jq --raw-output '.Program_config.Steps') ]]; then
                 Steps=$(cat $1 | jq --raw-output '.Program_config.Steps')
                 echo $(date +%Y%m%d-%H%M%S)" WARNING: Steps value changued to: "$Steps
             fi
-            if [ $Jump != $(cat $1 | jq --raw-output '.Program_config.Jump') ]; then
+            if [[ $Jump -ne $(cat $1 | jq --raw-output '.Program_config.Jump') ]]; then
                 Jump=$(cat $1 | jq --raw-output '.Program_config.Jump')
                 echo $(date +%Y%m%d-%H%M%S)" WARNING: Jump value changued to: "$Jump
             fi

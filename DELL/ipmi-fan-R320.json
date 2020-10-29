@@ -6,15 +6,15 @@
         "EncKey_IPMI": "0000000000000000000000000000000000000000"
     },
     "Program_config":{
-        "Interval": "20",
+        "Interval": "15",
         "Max_CPU_Temp": "70",
-        "Target_Temp": "60",
-        "JumpTemp": "5",
+        "Target_Temp": "55",
+        "JumpTemp": "4",
         "Hist": "1",
         "Steps": "1",
-        "Jump": "7",
+        "Jump": "10",
         "MIN_hex": "0",
         "MAX_hex": "100",
-        "INITIAL_hex": "20"
+        "INITIAL_hex": "10"
     }
 }

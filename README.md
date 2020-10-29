@@ -10,6 +10,10 @@ A VERY basic script to control the fan speed based on CPU Temp and fully customi
 thanks to @diferentec for the original script used as base for this one.
 
 ### Change Log:
+    v1.3.1  2020-10-29
+            Odd Values Management
+            *   Fixing odd values when the environment temp is to low 
+                and when "jumping" down the speed, gets values below 0x0
     v1.3    2020-10-28
             Fine Tuning without stoping the script:
             *   Now the following variables can be modified when the script is running, 
