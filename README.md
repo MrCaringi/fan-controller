@@ -1,7 +1,7 @@
 # Fan-Controllers
 ## Asustor AS6212RD
 
-A script which will monitor disk(s) temp. It take the hottest disk into account
+A script which will monitor disk(s) temp. It monitor the hottest disk in order to change the fan speed
 
 ## DELL R320
 
