@@ -51,3 +51,10 @@ thanks to @diferentec for the original script used as base for this one.
         "INITIAL_hex": "20" # in Decimal, when the script is started, this will be the initial speed (converted to Hex in the program).
     }
 }
+
+# Contributors
+<a href="https://github.com/MrCaringi/fan-controller/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=MrCaringi/fan-controller" />
+</a>
+
+[contrib.rocks](https://contrib.rocks).
